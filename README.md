@@ -9,12 +9,14 @@ docker run -it mmuzaf/cep-38
 One Cassandra node starts, you land in `cqlsh` connected to the management port, 11211, not the usual 9042.
 
 ```sql
+INVOKE COMMAND version;
 INVOKE COMMAND status;
+INVOKE COMMAND tpstats;
 ```
 
 ```sql
 SELECT * FROM system_views.commands;
-SELECT * FROM system_views.command_arguments WHERE command = 'compact';
+SELECT * FROM system_views.command_arguments WHERE command = 'status';
 ```
 
 ```sql
@@ -35,6 +37,7 @@ The image is built from [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://githu
 
 - the [CEP-38 design page](https://cwiki.apache.org/confluence/display/CASSANDRA/CEP-38%3A+CQL+Management+API)
 - the implementation ticket [CASSANDRA-19476](https://issues.apache.org/jira/browse/CASSANDRA-19476)
+- the pull request [apache/cassandra#4582](https://github.com/apache/cassandra/pull/4582)
 
 ## Author
 

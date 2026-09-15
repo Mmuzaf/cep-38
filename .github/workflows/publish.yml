@@ -1,0 +1,72 @@
+name: Publish image
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [Dockerfile]
+
+env:
+  IMAGE: mmuzaf/cep-38
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.head.outputs.sha }}
+      build: ${{ steps.decide.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: head
+        name: Resolve branch head from the Dockerfile ARGs
+        run: |
+          set -euo pipefail
+          REPO=$(sed -n 's/^ARG REPO=//p' Dockerfile)
+          BRANCH=$(sed -n 's/^ARG BRANCH=//p' Dockerfile)
+          SHA=$(git ls-remote "$REPO" "refs/heads/$BRANCH" | cut -c1-12)
+          test -n "$SHA" || { echo "::error::branch $BRANCH not found in $REPO"; exit 1; }
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+      - id: decide
+        name: Skip if this commit is already on Docker Hub
+        run: |
+          if [ "${{ github.event_name }}" != "push" ] && docker manifest inspect "$IMAGE:${{ steps.head.outputs.sha }}" >/dev/null 2>&1; then
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    strategy:
+      matrix:
+        include:
+          - { runner: ubuntu-latest,      arch: amd64 }
+          - { runner: ubuntu-24.04-arm,   arch: arm64 }
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:${{ needs.check.outputs.sha }}-${{ matrix.arch }}
+
+  manifest:
+    needs: [check, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Merge per-arch images into :latest and :<sha>
+        run: |
+          SHA=${{ needs.check.outputs.sha }}
+          docker buildx imagetools create -t "$IMAGE:latest" -t "$IMAGE:$SHA" "$IMAGE:$SHA-amd64" "$IMAGE:$SHA-arm64"

@@ -14,11 +14,16 @@ INVOKE COMMAND status;
 
 ```sql
 SELECT * FROM system_views.commands;
-SELECT * FROM system_views.command_arguments WHERE command = 'compact'
+SELECT * FROM system_views.command_arguments WHERE command = 'compact';
 ```
 
 ```sql
 INVOKE COMMAND "profile.start" WITH event = ['alloc'] AND duration = '5m' AND filename = 'memory-allocation-1.html';
+```
+
+The profile is written inside the container, copy it out:
+
+```sh
 docker cp $(docker ps -q --filter ancestor=mmuzaf/cep-38):/cassandra/memory-allocation-1.html .
 ```
 
@@ -30,3 +35,9 @@ The image is built from [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://githu
 
 - the [CEP-38 design page](https://cwiki.apache.org/confluence/display/CASSANDRA/CEP-38%3A+CQL+Management+API)
 - the implementation ticket [CASSANDRA-19476](https://issues.apache.org/jira/browse/CASSANDRA-19476)
+
+## Author
+
+Maxim Muzafarov, author of CEP-38. 
+Find me on [LinkedIn](https://www.linkedin.com/in/mmuzaf/). 
+Write to `mmuzaf at apache.org`.

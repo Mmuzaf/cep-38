@@ -1,6 +1,6 @@
 SELECT * FROM system_views.commands;
 SELECT * FROM system_views.command_arguments WHERE command = 'status';
-INVOKE COMMAND "profile.start" WITH event = ['alloc'] AND duration = '5m' AND filename = 'memory-allocation-1.html';
+INVOKE COMMAND "profile.start" WITH event = ['cpu'] AND duration = '10s' AND filename = 'cpu-profile-1.html';
 INVOKE COMMAND tpstats;
 INVOKE COMMAND version;
 INVOKE COMMAND status;

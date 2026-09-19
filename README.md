@@ -23,13 +23,13 @@ SELECT * FROM system_views.command_arguments WHERE command = 'status';
 ```
 
 ```sql
-INVOKE COMMAND "profile.start" WITH event = ['alloc'] AND duration = '5m' AND filename = 'memory-allocation-1.html';
+INVOKE COMMAND "profile.start" WITH event = ['cpu'] AND duration = '10s' AND filename = 'cpu-profile-1.html';
 ```
 
 The profile is written inside the container, copy it out:
 
 ```sh
-docker cp $(docker ps -q --filter ancestor=mmuzaf/cep-38):/cassandra/memory-allocation-1.html .
+docker cp $(docker ps -q --filter ancestor=mmuzaf/cep-38):/cassandra/cpu-profile-1.html .
 ```
 
 A plain `INSERT` or `CREATE TABLE` doesn't work. The management port rejects it.

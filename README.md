@@ -4,9 +4,12 @@
 docker run -it mmuzaf/cep-38
 ```
 
+The image is built from [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://github.com/Mmuzaf/cassandra/tree/cassandra-19476-coc26).
+
 ## Examples
 
 One Cassandra node starts, you land in `cqlsh` connected to the management port, 11211, not the usual 9042.
+The examples below are pre-loaded into the `cqlsh` history, press the Up arrow to recall them.
 
 ```sql
 INVOKE COMMAND version;
@@ -30,8 +33,6 @@ docker cp $(docker ps -q --filter ancestor=mmuzaf/cep-38):/cassandra/memory-allo
 ```
 
 A plain `INSERT` or `CREATE TABLE` doesn't work. The management port rejects it.
-
-The image is built from [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://github.com/Mmuzaf/cassandra/tree/cassandra-19476-coc26).
 
 ## Background reading
 

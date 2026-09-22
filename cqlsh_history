@@ -1,6 +1,9 @@
+CREATE KEYSPACE ks WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+CREATE TABLE ks.tbl (k text PRIMARY KEY, v int);
+INSERT INTO ks.tbl (k, v) VALUES ('k1', 1);
 SELECT * FROM system_views.commands;
 SELECT * FROM system_views.command_arguments WHERE command = 'status';
 INVOKE COMMAND "profile.start" WITH event = ['cpu'] AND duration = '10s' AND filename = 'cpu-profile-1.html';
 INVOKE COMMAND tpstats;
-INVOKE COMMAND version;
 INVOKE COMMAND status;
+INVOKE COMMAND version;

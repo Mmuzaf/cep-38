@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 procps 
 COPY --from=build /src/build/dist /cassandra
 # Pre-seeded cqlsh history: Up arrow recalls the README examples without running them
 COPY cqlsh_history /root/.cassandra/cqlsh_history
+# Demo schema, created on the regular port before cqlsh opens on the management port
+COPY seed.cql /cassandra/seed.cql
 RUN mkdir -p /cassandra/logs && chmod +x /cassandra/bin/* /cassandra/tools/bin/* \
  && sed -i 's/^start_native_transport_management: false/start_native_transport_management: true/' /cassandra/conf/cassandra.yaml
 ENV PATH=/cassandra/bin:$PATH \
@@ -20,8 +22,11 @@ ENV PATH=/cassandra/bin:$PATH \
 CMD echo 'Starting a single Cassandra node with the management port (11211) enabled...'; \
     cassandra -R >/cassandra/logs/stdout.log 2>&1; \
     for i in $(seq 90); do \
-      if cqlsh 127.0.0.1 11211 -e 'SELECT key FROM system.local' >/dev/null 2>&1; then \
-        echo "Management port is up after ${i}s. Opening cqlsh; press Tab for completion, Up arrow for example commands."; exec cqlsh 127.0.0.1 11211; fi; \
+      if cqlsh 127.0.0.1 11211 -e 'SELECT key FROM system.local' >/dev/null 2>&1 \
+         && cqlsh 127.0.0.1 9042 -e 'SELECT key FROM system.local' >/dev/null 2>&1; then \
+        echo "Node is up after ${i}s. Creating demo schema ks.tbl on port 9042..."; \
+        cqlsh 127.0.0.1 9042 -f /cassandra/seed.cql || echo 'Warning: demo schema was not created.'; \
+        echo "Opening cqlsh on the management port 11211; press Tab for completion, Up arrow for example commands."; exec cqlsh 127.0.0.1 11211; fi; \
       [ $((i % 5)) -eq 0 ] && echo "  ${i}s  $(tail -n 1 /cassandra/logs/system.log 2>/dev/null | cut -c1-140)"; \
       sleep 1; \
     done; \

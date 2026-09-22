@@ -8,7 +8,8 @@ The image is built from [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://githu
 
 ## Examples
 
-One Cassandra node starts, you land in `cqlsh` connected to the management port, 11211, not the usual 9042.
+One Cassandra node starts with a demo keyspace `ks` and table `ks.tbl` (three rows) created on the regular port, 9042.
+You land in `cqlsh` connected to the management port, 11211.
 The examples below are pre-loaded into the `cqlsh` history, press the Up arrow to recall them.
 
 ```sql
@@ -32,7 +33,13 @@ The profile is written inside the container, copy it out:
 docker cp $(docker ps -q --filter ancestor=mmuzaf/cep-38):/cassandra/cpu-profile-1.html .
 ```
 
-A plain `INSERT` or `CREATE TABLE` doesn't work. The management port rejects it.
+A plain `CREATE` or `INSERT` doesn't work. The management port rejects it, recall these from history to see for yourself:
+
+```sql
+CREATE KEYSPACE ks WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
+CREATE TABLE ks.tbl (k text PRIMARY KEY, v int);
+INSERT INTO ks.tbl (k, v) VALUES ('k1', 1);
+```
 
 ## Background reading
 

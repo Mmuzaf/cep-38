@@ -1,10 +1,10 @@
 # CEP-38: Try the CQL management API
 
 ```sh
-docker run -it mmuzaf/cep-38
+docker run -it --rm cep-38
 ```
 
-The image is built from [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://github.com/Mmuzaf/cassandra/tree/cassandra-19476-coc26).
+The image is built from an experimental branch: [`Mmuzaf/cassandra@cassandra-19476-coc26`](https://github.com/Mmuzaf/cassandra/tree/cassandra-19476-coc26)
 
 ## Examples
 
@@ -30,7 +30,7 @@ INVOKE COMMAND "profile.start" WITH event = ['cpu'] AND duration = '10s' AND fil
 The profile is written inside the container, copy it out:
 
 ```sh
-docker cp $(docker ps -q --filter ancestor=mmuzaf/cep-38):/cassandra/cpu-profile-1.html .
+docker cp $(docker ps -ql --filter status=running --filter ancestor=mmuzaf/cep-38):/cassandra/cpu-profile-1.html .
 ```
 
 A plain `CREATE` or `INSERT` doesn't work. The management port rejects it, recall these from history to see for yourself:
@@ -39,6 +39,26 @@ A plain `CREATE` or `INSERT` doesn't work. The management port rejects it, recal
 CREATE KEYSPACE ks WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};
 CREATE TABLE ks.tbl (k text PRIMARY KEY, v int);
 INSERT INTO ks.tbl (k, v) VALUES ('k1', 1);
+```
+
+## Custom commands
+
+The image ships a new custom command, `memorybreakdown`, from the plugin directory [`examples/nodetool-custom-commands`](https://github.com/Mmuzaf/cassandra/tree/cassandra-19476-coc26/examples/nodetool-custom-commands).
+
+Run it from `cqlsh`:
+
+```sql
+INVOKE COMMAND memorybreakdown;
+```
+
+To run it with `nodetool` either via JMX or CQL:
+
+```sh
+docker exec -it $(docker ps -ql --filter status=running --filter ancestor=cep-38) bash
+cd /cassandra
+
+bin/nodetool -h 127.0.0.1 -p 7199 memorybreakdown
+CASSANDRA_CLI_EXECUTION_PROTOCOL=cql bin/nodetool -h 127.0.0.1 memorybreakdown
 ```
 
 ## Background reading

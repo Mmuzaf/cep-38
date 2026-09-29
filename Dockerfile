@@ -6,6 +6,10 @@ RUN git clone --depth 1 -b "$BRANCH" "$REPO" /src
 WORKDIR /src
 RUN ant artifacts -Dcheck.skip=true -Dant.gen-doc.skip=true
 
+# Example nodetool plugin - custom commands that can be run with nodetool.
+RUN ant -f examples/nodetool-custom-commands/build.xml jar \
+ && cp examples/nodetool-custom-commands/build/nodetool-custom-commands-example.jar build/dist/lib/
+
 # cqlsh rejects the 3.14 in newer bases
 FROM eclipse-temurin:17-jre-noble
 RUN apt-get update && apt-get install -y --no-install-recommends python3 procps && rm -rf /var/lib/apt/lists/*

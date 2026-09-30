@@ -20,6 +20,8 @@ COPY cqlsh_history /root/.cassandra/cqlsh_history
 COPY seed.cql /cassandra/seed.cql
 RUN mkdir -p /cassandra/logs && chmod +x /cassandra/bin/* /cassandra/tools/bin/* \
  && sed -i 's/^start_native_transport_management: false/start_native_transport_management: true/' /cassandra/conf/cassandra.yaml
+RUN /cassandra/bin/nodetool generate-completion > /etc/nodetool-completion.bash \
+ && echo '. /etc/nodetool-completion.bash; complete -F _complete_nodetool -o default nodetool bin/nodetool ./bin/nodetool' >> /root/.bashrc
 ENV PATH=/cassandra/bin:$PATH \
     MAX_HEAP_SIZE=1G HEAP_NEWSIZE=256M \
     JVM_OPTS="-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.async_profiler.enabled=true"

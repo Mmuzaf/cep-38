@@ -57,8 +57,8 @@ To run it with `nodetool` either via JMX or CQL:
 docker exec -it $(docker ps -ql --filter status=running --filter ancestor=cep-38) bash
 cd /cassandra
 
-bin/nodetool -h 127.0.0.1 -p 7199 memorybreakdown
-CASSANDRA_CLI_EXECUTION_PROTOCOL=cql bin/nodetool -h 127.0.0.1 memorybreakdown
+bin/nodetool memorybreakdown
+CASSANDRA_CLI_EXECUTION_PROTOCOL=cql bin/nodetool memorybreakdown
 ```
 
 ## Background reading

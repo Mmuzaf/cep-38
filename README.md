@@ -19,18 +19,18 @@ INVOKE COMMAND tpstats;
 ```
 
 ```sql
-SELECT * FROM system_views.commands;
-SELECT * FROM system_views.command_arguments WHERE command = 'status';
+SELECT command FROM system_views.commands;
+SELECT command, argument, arity, default_value, kind, required, type FROM system_views.command_arguments WHERE command = 'status';
 ```
 
 ```sql
-INVOKE COMMAND "profile.start" WITH event = ['cpu'] AND duration = '10s' AND filename = 'cpu-profile-1.html';
+INVOKE COMMAND "profile.start" WITH event = ['alloc'] AND duration = '10s' AND filename = 'alloc-profile-1.html';
 ```
 
 The profile is written inside the container, copy it out:
 
 ```sh
-docker cp $(docker ps -ql --filter status=running --filter ancestor=mmuzaf/cep-38):/cassandra/cpu-profile-1.html .
+docker cp $(docker ps -ql --filter status=running --filter ancestor=mmuzaf/cep-38):/cassandra/alloc-profile-1.html .
 ```
 
 A plain `CREATE` or `INSERT` doesn't work. The management port rejects it, recall these from history to see for yourself:

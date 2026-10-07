@@ -12,7 +12,7 @@ RUN ant -f examples/nodetool-custom-commands/build.xml jar \
 
 # cqlsh rejects the 3.14 in newer bases
 FROM eclipse-temurin:17-jre-noble
-RUN apt-get update && apt-get install -y --no-install-recommends python3 procps && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends python3 procps iptables && rm -rf /var/lib/apt/lists/*
 COPY --from=build /src/build/dist /cassandra
 # Pre-seeded cqlsh history: Up arrow recalls the README examples without running them
 COPY cqlsh_history /root/.cassandra/cqlsh_history

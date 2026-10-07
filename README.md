@@ -20,7 +20,10 @@ INVOKE COMMAND tpstats;
 
 ```sql
 SELECT command FROM system_views.commands;
-SELECT command, argument, arity, default_value, kind, required, type FROM system_views.command_arguments WHERE command = 'status';
+
+SELECT command, argument, arity, default_value, kind, required, type 
+    FROM system_views.command_arguments
+    WHERE command = 'status';
 ```
 
 ```sql
@@ -58,6 +61,10 @@ docker exec -it $(docker ps -ql --filter status=running --filter ancestor=cep-38
 cd /cassandra
 
 bin/nodetool memorybreakdown
+
+# Block JMX port
+iptables -A OUTPUT -o lo -p tcp --dport 7199 -j REJECT --reject-with tcp-reset
+
 CASSANDRA_CLI_EXECUTION_PROTOCOL=cql bin/nodetool memorybreakdown
 ```
 

@@ -16,6 +16,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends python3 procps 
 COPY --from=build /src/build/dist /cassandra
 # Pre-seeded cqlsh history: Up arrow recalls the README examples without running them
 COPY cqlsh_history /root/.cassandra/cqlsh_history
+# Pre-seeded bash history (newest last): Up arrow walks the nodetool/JMX demo in order
+COPY bash_history /root/.bash_history
 # Demo schema, created on the regular port before cqlsh opens on the management port
 COPY seed.cql /cassandra/seed.cql
 RUN mkdir -p /cassandra/logs && chmod +x /cassandra/bin/* /cassandra/tools/bin/* \
